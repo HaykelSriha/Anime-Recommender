@@ -82,6 +82,34 @@ def run_health_check(**context):
     return healthy
 
 
+def push_to_github(**context):
+    """Commit and push updated database to GitHub so Streamlit Cloud redeploys."""
+    import subprocess
+
+    os.chdir(str(PROJECT_ROOT))
+
+    # Configure git for the commit
+    subprocess.run(['git', 'config', 'user.email', 'airflow@anime-recommender'], check=True)
+    subprocess.run(['git', 'config', 'user.name', 'Airflow Pipeline'], check=True)
+
+    # Stage the updated database
+    subprocess.run(['git', 'add', 'warehouse/anime_full_phase1.duckdb'], check=True)
+
+    # Check if there are changes to commit
+    result = subprocess.run(['git', 'diff', '--cached', '--quiet'], capture_output=True)
+    if result.returncode == 0:
+        print("No database changes to push")
+        return
+
+    # Commit and push
+    subprocess.run(
+        ['git', 'commit', '-m', 'Automated data refresh by Airflow pipeline'],
+        check=True,
+    )
+    subprocess.run(['git', 'push'], check=True)
+    print("Updated database pushed to GitHub -> Streamlit Cloud will redeploy")
+
+
 with DAG(
     dag_id='anime_weekly_full_refresh',
     default_args=default_args,
@@ -112,4 +140,9 @@ with DAG(
         python_callable=run_health_check,
     )
 
-    phase1 >> metrics >> retrain >> health
+    push = PythonOperator(
+        task_id='push_to_github',
+        python_callable=push_to_github,
+    )
+
+    phase1 >> metrics >> retrain >> health >> push
