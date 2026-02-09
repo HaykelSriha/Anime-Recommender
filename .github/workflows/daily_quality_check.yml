@@ -1,0 +1,27 @@
+name: Daily Quality Check
+
+on:
+  schedule:
+    - cron: '0 8 * * *'  # Every day at 8 AM UTC
+  workflow_dispatch:  # Allow manual trigger from GitHub UI
+
+jobs:
+  quality-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install duckdb pandas numpy scikit-learn scipy requests PyYAML tenacity
+
+      - name: Run health check
+        run: python scripts/health_check.py

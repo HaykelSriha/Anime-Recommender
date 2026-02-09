@@ -1,0 +1,47 @@
+name: Weekly Data Refresh & ML Retrain
+
+on:
+  schedule:
+    - cron: '0 1 * * 0'  # Sunday 1 AM UTC
+  workflow_dispatch:  # Allow manual trigger from GitHub UI
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install duckdb pandas numpy scikit-learn scipy requests PyYAML tenacity
+
+      - name: Populate metrics from AniList API
+        run: python scripts/populate_metrics.py
+
+      - name: Retrain ML models (TF-IDF + NMF)
+        run: python scripts/retrain_models.py
+
+      - name: Run health check
+        run: python scripts/health_check.py
+
+      - name: Push updated database
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add warehouse/anime_full_phase1.duckdb
+          if git diff --cached --quiet; then
+            echo "No changes to push"
+          else
+            git commit -m "Automated weekly data refresh & ML retrain"
+            git push
+          fi
