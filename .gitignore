@@ -1,0 +1,83 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Environment variables
+.env
+.env.local
+
+# Logs
+logs/*.log
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Data (optional - uncomment if warehouse is too large)
+# warehouse/anime_dw.duckdb
+# warehouse/anime_dw.duckdb.wal
+
+# Airflow (if using)
+airflow/logs/
+airflow/*.db
+airflow/*.pid
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+
+# Claude temp files, directories, and settings
+tmpclaude-*
+.claude/
+nul
+
+# Unused warehouse files (only anime_full_phase1.duckdb is needed)
+warehouse/anime_dw.duckdb
+warehouse/anime_dw_phase1.duckdb
+warehouse/anime_phase1.duckdb
+warehouse/anime_extract.duckdb
+warehouse/*.wal
+
+# Docker
+postgres-data/

@@ -1,0 +1,26 @@
+FROM apache/airflow:2.8.1-python3.11
+
+USER root
+
+# Install system dependencies needed by some Python packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+USER airflow
+
+# Install project dependencies (only data/ML packages, skip Streamlit/UI)
+RUN pip install --no-cache-dir \
+    duckdb==1.4.4 \
+    pandas==2.1.3 \
+    numpy==1.24.3 \
+    scikit-learn==1.3.2 \
+    scipy==1.15.3 \
+    requests==2.32.5 \
+    PyYAML==6.0.3 \
+    python-dotenv==1.2.1 \
+    tenacity==8.5.0 \
+    apache-airflow-providers-http==4.10.0
+
+# Project code is volume-mounted via docker-compose, not copied
